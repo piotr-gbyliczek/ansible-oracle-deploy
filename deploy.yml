@@ -1,0 +1,225 @@
+---
+- name: Deploy oracle
+  hosts: all
+  become: true
+  become_user: root
+  tasks:
+   - name: check if drive exists
+     stat:
+       path: "/dev/{{ volume }}"
+     register: drive
+     tags: lvm
+
+   - name: check if partition exists
+     stat:
+       path: "/dev/{{ volume }}1"
+     register: partition
+     tags: lvm
+
+   - name: check if logical volume exists
+     stat:
+       path: "/dev/vgoracle/lvoracle1"
+     register: logical_volume
+     tags: lvm
+
+   - name: set kernel parameters
+     lineinfile:
+       path: /etc/sysctl.conf
+       line: "{{ item }}"
+       state: present
+     with_items:
+      - 'fs.file-max = 6815744'
+      - 'kernel.sem = 250 32000 100 128'
+      - 'kernel.shmmni = 4096'
+      - 'kernel.shmall = 7340032'
+      - 'kernel.shmmax = 32212254720'
+      - 'net.core.rmem_default = 262144'
+      - 'net.core.rmem_max = 4194304'
+      - 'net.core.wmem_default = 262144'
+      - 'net.core.wmem_max = 1048576'
+      - 'fs.aio-max-nr = 1048576'
+      - 'net.ipv4.ip_local_port_range = 9000 65500'
+
+   - name: apply kernel parameters
+     shell : /sbin/sysctl -p
+
+   - name: set user limits
+     lineinfile:
+       path: /etc/security/limits.conf
+       line: "{{ item }}"
+       state: present
+     with_items:
+      - '# Oracle'
+      - 'oracle   soft   nofile    1024'
+      - 'oracle   hard   nofile    65536'
+      - 'oracle   soft   nproc    2047'
+      - 'oracle   hard   nproc    16384'
+      - 'oracle   soft   stack    10240'
+      - 'oracle   hard   stack    32768'
+
+   - name: adjust tmpfs
+     mount:
+       src: /dev/shm
+       fstype: tmpfs
+       path: tmpfs
+       opts: "defaults,size=30g"
+       state: mounted
+
+   - name: install asm libs
+     yum:
+       name: "{{ item }}"
+       state: present
+     with_items:
+      - http://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el7.x86_64.rpm
+      - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/kmod-oracleasm-2.0.8-15.0.1.el7.x86_64.rpm
+      - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracleasm-support-2.1.8-3.el7.x86_64.rpm
+
+#   - name: initialize and verify oracleasm
+#     shell: oracleasm init
+#     notify: restart_oracleasm
+
+   - name: create oracle related groups
+     group:
+       state: present
+       name: "{{ item.name }}"
+       gid: "{{ item.gid }}"
+     with_items:
+      - { name: oinstall, gid: 54321 }
+      - { name: dba, gid: 54322 }
+      - { name: oper, gid: 54323 }
+      - { name: asmdba, gid: 54327 }
+      - { name: asmoper, gid: 54328 }
+      - { name: asmadmin, gid: 54329 }
+
+   - name: Create user oracle
+     user:
+       name: oracle
+       uid: 54321
+       group: oinstall
+       groups: dba, oper, asmdba, asmoper, asmadmin
+       password: $6$gcbS7uAuec83Gp9J$UWOo.8SsgBT0lu73w0EMxNvRUj2HIfRMomrph50MNKK5U9thdfN4PKzzT2nGXLP9mo9hoqUTQhohiTfvQ2IfF1
+       state: present
+
+   - name: create partition table
+     shell: /usr/sbin/parted -s /dev/{{ volume }} mktable gpt
+     when: drive.stat.exists and not partition.stat.exists
+     tags: lvm
+
+   - name: create partition
+     shell: /usr/sbin/parted -s /dev/{{ volume }} mkpart primary ext4 512K 100%
+     when: drive.stat.exists and not partition.stat.exists
+     tags: lvm
+
+   - name: create LVM group vgoracle
+     lvg:
+       vg: vgoracle
+       pvs: /dev/{{ volume }}1
+
+     tags: lvm
+   - name: create LVM volume lvoracle1
+     lvol:
+       vg: vgoracle
+       lv: lvoracle1
+       size: 100G
+     when: not logical_volume.stat.exists
+     tags: lvm
+
+   - name: create lvoracle1 filesystem
+     filesystem:
+       fstype: ext4
+       dev: /dev/vgoracle/lvoracle1
+     tags: lvm
+
+   - name: create folder for lvoracle1 volume
+     file:
+       path: /u01
+       state: directory
+       owner: oracle
+       group: oinstall
+       mode: 0775
+     tags: lvm, mount
+
+   - name: create mount point for lvoracle1
+     mount:
+       src: /dev/vgoracle/lvoracle1
+       name: /u01
+       fstype: ext4
+       state: mounted
+     tags: lvm,mount
+
+   - name: ensure u01 folder permissions after mount
+     file:
+       path: /u01
+       state: directory
+       owner: oracle
+       group: oinstall
+       mode: 0775
+     tags: lvm, mount
+
+   - name: create /u01/media folder
+     file:
+       path: "{{ item }}"
+       state: directory
+       owner: oracle
+       group: oinstall
+       mode: 0775
+     with_items:
+       - /u01i/media
+       - /u01/app/oracle/product/12.1.0.2/dbhome_1
+       - /u01/app/oracle/12.1.0.2/grid
+     tags: lvm, mount
+
+   - name: enable rhui repositories
+     shell: yum-config-manager --enable rhui-{{ region }}-rhel-server-extras rhui-{{ region }}-rhel-server-optional
+
+   - name: install required packages
+     yum:
+       name: "{{ item }}"
+       state: present
+     with_items:
+      - unzip
+      - binutils
+      - compat-libstdc++-33
+      - compat-libstdc++-33.i686
+      - gcc
+      - gcc-c++
+      - glibc
+      - glibc.i686
+      - glibc-devel
+      - glibc-devel.i686
+      - ksh
+      - libgcc
+      - libgcc.i686
+      - libstdc++
+      - libstdc++.i686
+      - libstdc++-devel
+      - libstdc++-devel.i686
+      - libaio
+      - libaio.i686
+      - libaio-devel
+      - libaio-devel.i686
+      - libXext
+      - libXext.i686
+      - libXtst
+      - libXtst.i686
+      - libX11
+      - libX11.i686
+      - libXau
+      - libXau.i686
+      - libxcb
+      - libxcb.i686
+      - libXi
+      - libXi.i686
+      - make
+      - nfs-utils-1*
+      - sysstat
+      - unixODBC
+      - unixODBC-devel
+      - zlib-devel
+      - zlib-devel.i686
+      - compat-libcap1
+      - bind-utils
+      - wget
+      - xhost
+      - xauth
+      - java-1.7.0-openjdk-devel
