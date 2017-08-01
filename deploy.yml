@@ -192,6 +192,23 @@
      with_items:
       - "{{ cifs_packages }}"
      when: production
+   
+   - name: create mount point for cifs share
+     mount:
+       src: //10.1.0.235/Data
+       name: /DataShare
+       fstype: cifs
+       opts: _netdev,username=CIFS,password=Oracle123,nolock,dir_mode=0777,file_mode=0777
+       state: mounted
+     when: production
+
+   - name: create /DataShare/oraarch/ORCLDB1 folder
+     file:
+       path: /DataShare/oraarch/ORCLDB1
+       state: directory
+       owner: oracle
+       group: oinstall
+       mode: 0775
 
    - name: add oracle binary path to PATH
      lineinfile:
