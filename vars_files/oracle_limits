@@ -1,0 +1,8 @@
+---
+oracle_limits:
+   - { domain: oracle, type: soft, name: nofile, value:  1024, comment: Oracle }
+   - { domain: oracle, type: hard, name: nofile, value:  65536, comment: Oracle }
+   - { domain: oracle, type: soft, name: nproc, value:  2047, comment: Oracle }
+   - { domain: oracle, type: hard, name: nproc, value:  16384, comment: Oracle }
+   - { domain: oracle, type: soft, name: stack, value:  10240, comment: Oracle }
+   - { domain: oracle, type: hard, name: stack, value:  32768, comment: Oracle }
