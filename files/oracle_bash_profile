@@ -1,0 +1,22 @@
+# Oracle Settings
+export TMP=/tmp
+export TMPDIR=$TMP
+
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/12.1.0.2/dbhome_1
+export ORACLE_GRID=/u01/app/oracle/12.1.0.2/grid
+
+export PATH=/usr/sbin:$PATH
+export PATH=$ORACLE_HOME/bin:$ORACLE_GRID/bin:$PATH
+
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+
+if [ $USER = "oracle" ]; then
+  if [ $SHELL = "/bin/ksh" ]; then
+    ulimit -p 16384
+    ulimit -n 65536
+  else
+    ulimit -u 16384 -n 65536
+  fi
+fi

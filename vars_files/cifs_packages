@@ -1,0 +1,11 @@
+cifs_packages:
+ - cifs-utils
+ - libldb
+ - libtdb
+ - libwbclient
+ - pytalloc
+ - samba-client-libs
+ - samba-common
+ - samba-common-libs
+ - samba-common-tools
+ - samba-libs

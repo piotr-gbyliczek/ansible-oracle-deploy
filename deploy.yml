@@ -3,6 +3,12 @@
   hosts: all
   become: true
   become_user: root
+  vars:
+    production: true
+  vars_files:
+    - vars_files/packages
+    - vars_files/cifs_packages
+    - vars_files/oracle_drives
   tasks:
    - name: check if drive exists
      stat:
@@ -71,8 +77,8 @@
        state: present
      with_items:
       - http://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el7.x86_64.rpm
-      - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/kmod-oracleasm-2.0.8-15.0.1.el7.x86_64.rpm
-      - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracleasm-support-2.1.8-3.el7.x86_64.rpm
+      - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/kmod-oracleasm-2.0.8-17.0.1.el7.x86_64.rpm
+      - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracleasm-support-2.1.8-3.1.el7.x86_64.rpm
 
 #   - name: initialize and verify oracleasm
 #     shell: oracleasm init
@@ -120,7 +126,7 @@
      lvol:
        vg: vgoracle
        lv: lvoracle1
-       size: 100G
+       size: 100%FREE
      when: not logical_volume.stat.exists
      tags: lvm
 
@@ -177,49 +183,33 @@
        name: "{{ item }}"
        state: present
      with_items:
-      - unzip
-      - binutils
-      - compat-libstdc++-33
-      - compat-libstdc++-33.i686
-      - gcc
-      - gcc-c++
-      - glibc
-      - glibc.i686
-      - glibc-devel
-      - glibc-devel.i686
-      - ksh
-      - libgcc
-      - libgcc.i686
-      - libstdc++
-      - libstdc++.i686
-      - libstdc++-devel
-      - libstdc++-devel.i686
-      - libaio
-      - libaio.i686
-      - libaio-devel
-      - libaio-devel.i686
-      - libXext
-      - libXext.i686
-      - libXtst
-      - libXtst.i686
-      - libX11
-      - libX11.i686
-      - libXau
-      - libXau.i686
-      - libxcb
-      - libxcb.i686
-      - libXi
-      - libXi.i686
-      - make
-      - nfs-utils-1*
-      - sysstat
-      - unixODBC
-      - unixODBC-devel
-      - zlib-devel
-      - zlib-devel.i686
-      - compat-libcap1
-      - bind-utils
-      - wget
-      - xhost
-      - xauth
-      - java-1.7.0-openjdk-devel
+      - "{{ packages }}"
+
+   - name: install samba/cifs related packages
+     yum:
+       name: "{{ item }}"
+       state: present
+     with_items:
+      - "{{ cifs_packages }}"
+     when: production
+
+   - name: add oracle binary path to PATH
+     lineinfile:
+       path: ~/.bash_profile
+       line: PATH=$PATH:$HOME/bin:/u01/app/oracle/12.1.0.2/grid/bin
+
+   - name: set environment variables for oracle user
+     become: yes
+     become_user: oracle
+     blockinfile:
+       path: ~/.bash_profile
+       block: "{{ lookup('file', 'files/oracle_bash_profile') }}"
+       insertafter: EOF
+
+   - name: create partition table on oracle drives
+     shell: /usr/sbin/parted -s /dev/{{ item }} mktable gpt
+     with_items: "{{ oracle_drives }}"
+
+   - name: create partition on oracle drives
+     shell: /usr/sbin/parted -s /dev/{{ item }} mkpart primary ext4 512K 100%
+     with_items: "{{ oracle_drives }}"
