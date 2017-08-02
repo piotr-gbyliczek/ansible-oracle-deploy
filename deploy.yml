@@ -20,15 +20,6 @@
        reload: yes
      with_items: "{{ kernel_parameters }}"
 
-   - name: set user limits
-     pam_limits:
-       limit_item: "{{ item.name }}"
-       limit_type: "{{ item.type }}"
-       value: "{{ item.value }}"
-       domain: "{{ item.domain }}"
-       comment: "{{ item.comment }}"
-     with_items: "{{ oracle_limits }}"
-
    - name: adjust tmpfs
      mount:
        src: /dev/shm
@@ -71,6 +62,15 @@
        groups: dba, oper, asmdba, asmoper, asmadmin
        password: $6$gcbS7uAuec83Gp9J$UWOo.8SsgBT0lu73w0EMxNvRUj2HIfRMomrph50MNKK5U9thdfN4PKzzT2nGXLP9mo9hoqUTQhohiTfvQ2IfF1
        state: present
+
+   - name: set user limits
+     pam_limits:
+       limit_item: "{{ item.name }}"
+       limit_type: "{{ item.type }}"
+       value: "{{ item.value | int }}"
+       domain: "{{ item.domain }}"
+       #comment: "{{ item.comment }}"
+     with_items: "{{ oracle_limits }}"
 
    - name: create partition
      parted:
@@ -171,6 +171,7 @@
        opts: _netdev,username=CIFS,password=Oracle123,nolock,dir_mode=0777,file_mode=0777
        state: mounted
      when: production
+     ignore_errors: true
 
    - name: create /DataShare/oraarch/ORCLDB1 folder
      file:
@@ -179,6 +180,7 @@
        owner: oracle
        group: oinstall
        mode: 0775
+     when: production
 
    - name: add oracle binary path to PATH
      lineinfile:
