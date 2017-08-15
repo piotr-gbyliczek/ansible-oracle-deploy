@@ -7,7 +7,10 @@
     production: true
   vars_files:
     - vars_files/packages
-    - vars_files/cifs_packages
+    - vars_files/cifs_packages_el6
+    - vars_files/cifs_packages_el7
+    - vars_files/asm_packages_el6
+    - vars_files/asm_packages_el7
     - vars_files/oracle_drives
     - vars_files/oracle_asm_names
     - vars_files/kernel_parameters
@@ -29,18 +32,31 @@
        opts: "defaults,size=30g"
        state: mounted
 
-   - name: install asm libs
+   - name: install asm libs (el6)
      yum:
        name: "{{ item }}"
        state: present
-     with_items:
-      - http://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el7.x86_64.rpm
-      - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/kmod-oracleasm-2.0.8-17.0.1.el7.x86_64.rpm
-      - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracleasm-support-2.1.8-3.1.el7.x86_64.rpm
+     when: ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat'
+     with_items: "{{ asm_packages_el6 }}"
 
-   - name: initialize and verify oracleasm
+
+   - name: install asm libs (el7)
+     yum:
+       name: "{{ item }}"
+       state: present
+     when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'
+     with_items: "{{ asm_packages_el7 }}"
+
+
+   - name: initialize and verify oracleasm (el6)
      shell: oracleasm init
-     notify: restart_oracleasm
+     when: ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat'
+     notify: restart_oracleasm_el7
+
+   - name: initialize and verify oracleasm (el7)
+     shell: oracleasm init
+     when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'
+     notify: restart_oracleasm_el7
 
    - name: create oracle related groups
      group:
@@ -156,13 +172,22 @@
      with_items:
       - "{{ packages }}"
 
-   - name: install samba/cifs related packages
+   - name: install samba/cifs related packages (el6)
      yum:
        name: "{{ item }}"
        state: present
      with_items:
-      - "{{ cifs_packages }}"
-     when: production
+      - "{{ cifs_packages_el6 }}"
+     when: production and ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat'
+
+   - name: install samba/cifs related packages (el7)
+     yum:
+       name: "{{ item }}"
+       state: present
+     with_items:
+      - "{{ cifs_packages_el7 }}"
+     when: production and ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'
+
 
    - name: create mount point for cifs share
      mount:
@@ -222,7 +247,12 @@
 
 
   handlers:
-   - name: restart_oracleasm
+   - name: restart_oracleasm_el6
+     service:
+       name: oracleasm
+       state: restarted
+
+   - name: restart_oracleasm_el7
      systemd:
        name: oracleasm.service
        state: restarted

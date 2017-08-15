@@ -1,0 +1,8 @@
+cifs_packages_el6:
+ - cifs-utils
+ - samba-common
+ - libtalloc
+ - libtdb
+ - libtevent
+ - samba-winbind
+ - samba-winbind-clients

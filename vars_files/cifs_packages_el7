@@ -1,4 +1,4 @@
-cifs_packages:
+cifs_packages_el7:
  - cifs-utils
  - libldb
  - libtdb

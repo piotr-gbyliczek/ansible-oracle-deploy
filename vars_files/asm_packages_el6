@@ -1,0 +1,4 @@
+asm_packages_el6:
+ - http://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el6.x86_64.rpm
+ - http://public-yum.oracle.com/repo/OracleLinux/OL6/latest/x86_64/getPackage/kmod-oracleasm-2.0.8-15.el6_9.x86_64.rpm
+ - http://public-yum.oracle.com/repo/OracleLinux/OL6/latest/x86_64/getPackage/oracleasm-support-2.1.10-4.el6.x86_64.rpm
