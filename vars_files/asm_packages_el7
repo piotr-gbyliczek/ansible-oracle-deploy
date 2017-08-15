@@ -1,4 +1,4 @@
 asm_packages_el7:
  - http://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el7.x86_64.rpm
- - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/kmod-oracleasm-2.0.8-19.0.1.el7.x86_64.rpm
+ - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/kmod-oracleasm-2.0.8-17.0.1.el7.x86_64.rpm
  - http://public-yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracleasm-support-2.1.8-3.1.el7.x86_64.rpm
