@@ -252,6 +252,7 @@
        part_end: 100%
        part_type: primary
      with_items: "{{ oracle_drives }}"
+     when: asm
 
    - name: add oracleasm drives (el6)
      shell: oracleasm createdisk {{ item.1 }} /dev/{{item.0 }}1
