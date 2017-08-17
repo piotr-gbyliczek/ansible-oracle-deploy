@@ -317,7 +317,7 @@
        remote_src: yes
        src: "{{ item.path }}"
        dest: /u01/media
-     with_items: "{{ ora_files }}"
+     with_items: "{{ ora_files.files }}"
 
 
   handlers:
