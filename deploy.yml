@@ -110,7 +110,13 @@
        #comment: "{{ item.comment }}"
      with_items: "{{ oracle_limits }}"
 
-   - name: create partition
+   - name: check if {{ volume }}1 partition is present
+     stat: path=/dev/{{ volume }}1
+     register: partition_check
+
+   - debug: msg="{{ partition_check }}"
+
+   - name: create {{ volume }}1 partition
      parted:
        device: /dev/{{ volume }}
        label: gpt
@@ -121,6 +127,7 @@
        part_start: 0%
        part_end: 100%
      tags: lvm
+     when: partition_check.stat.exists == 'false'
      register: partition
 
    - debug: msg="{{ partition }}"
@@ -129,6 +136,7 @@
      lvg:
        vg: vgoracle
        pvs: /dev/{{ volume }}1
+     when: partition_check.stat.exists == 'false'
 
      tags: lvm
    - name: create LVM volume lvoracle1
@@ -137,12 +145,14 @@
        lv: lvoracle1
        size: 60%FREE
      tags: lvm
+     when: partition_check.stat.exists == 'false'
 
    - name: create lvoracle1 filesystem
      filesystem:
        fstype: ext4
        dev: /dev/vgoracle/lvoracle1
      tags: lvm
+     when: partition_check.stat.exists == 'false'
 
    - name: create folder for lvoracle1 volume
      file:
@@ -152,6 +162,7 @@
        group: oinstall
        mode: 0775
      tags: lvm, mount
+     when: partition_check.stat.exists == 'false'
 
    - name: create mount point for lvoracle1
      mount:
@@ -160,6 +171,7 @@
        fstype: ext4
        state: mounted
      tags: lvm,mount
+     when: partition_check.stat.exists == 'false'
 
    - name: ensure u01 folder permissions after mount
      file:
@@ -279,20 +291,28 @@
    - debug: msg="{{ asm_drives }}"
      when: asm
 
-   - name: download oracle "{{ ora_version }}" archives
+   - name: download oracle 11G archives
      get_url:
        url: "{{ item }}"
        dest: /u01/media
-     with_items: "{{ oracle_bin_{{ ora_version }} }}"
+     with_items: "{{ oracle_bin_11G }}"
+     when: ora_version == '11G'
 
-   - name: get oracle "{{ ora_version }}" filenames
+   - name: download oracle 12G archives
+     get_url:
+       url: "{{ item }}"
+       dest: /u01/media
+     with_items: "{{ oracle_bin_12C }}"
+     when: ora_version == '12C'
+
+   - name: get oracle {{ ora_version }} filenames
      find:
        paths: /u01/media
        file_type: file
        contains: 'zip'
      register: ora_files
 
-   - name: extract oracle "{{ ora_version }}" binaries from archives
+   - name: extract oracle {{ ora_version }} binaries from archives
      unarchive:
        remote_src: yes
        src: "{{ item.path }}"
