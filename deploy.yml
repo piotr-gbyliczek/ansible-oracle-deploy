@@ -25,7 +25,7 @@
 
    - name: install subscription manager
      yum: state=present name=subscription-manager
-     when: ansible_distrobution == 'RedHat'
+     when: ansible_distribution == 'RedHat'
 
    - name: register with foreman/satellite
      redhat_subscription:
@@ -34,7 +34,7 @@
        state: present
        autosubscribe: yes
        force_register: yes
-     when: ansible_distrobution == 'RedHat'
+     when: ansible_distribution == 'RedHat'
      ignore_errors: yes
 
    - name: set kernel parameters
