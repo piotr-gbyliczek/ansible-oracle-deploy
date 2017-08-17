@@ -8,7 +8,7 @@ file_to_disk3 = '.vagrant/disk3.vdi'
 file_to_disk4 = '.vagrant/disk4.vdi'
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "centos/7"
+  config.vm.box = "centos/6"
   config.landrush.enabled = true
   config.landrush.host_redirect_dns = false
   config.landrush.tld = 'oss.node4.co.uk'
