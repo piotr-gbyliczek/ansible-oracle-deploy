@@ -22,6 +22,21 @@
     - vars_files/oracle_bin_11G
     - vars_files/oracle_bin_12C
   tasks:
+
+   - name: install subscription manager
+     yum: state=present name=subscription-manager
+     when: ansible_distrobution == 'RedHat'
+
+   - name: register with foreman/satellite
+     redhat_subscription:
+       username: piotrgbyliczek
+       password: "{{ rh_pass }}"
+       state: present
+       autosubscribe: yes
+       force_register: yes
+     when: ansible_distrobution == 'RedHat'
+     ignore_errors: yes
+
    - name: set kernel parameters
      sysctl:
        name: "{{ item.name }}"
