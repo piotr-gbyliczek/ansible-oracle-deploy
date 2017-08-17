@@ -267,7 +267,7 @@
      get_url:
        url: "{{ item }}"
        dest: /u01/media
-     with: "{{ oracle_bin_{{ ora_version }} }}"
+     with_items: "{{ oracle_bin_{{ ora_version }} }}"
 
    - name: get oracle "{{ ora_version }}" filenames
      find:
@@ -281,7 +281,7 @@
        remote_src: yes
        src: "{{ item.path }}"
        dest: /u01/media
-    with: "{{ ora_files }}"     
+    with_items: "{{ ora_files }}"     
 
 
   handlers:
