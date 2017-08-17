@@ -4,11 +4,11 @@
   become: true
   become_user: root
   vars:
-    production: true
+    production: false
     volume: sdb
     region: emea
-    asm: true
-    ora_version: 11G
+    asm: false
+    ora_version: 12C
   vars_files:
     - vars_files/packages
     - vars_files/cifs_packages_el6
@@ -27,7 +27,7 @@
      yum: state=present name=subscription-manager
      when: ansible_distribution == 'RedHat'
 
-   - name: register with foreman/satellite
+   - name: register with RedHat
      redhat_subscription:
        username: piotrgbyliczek
        password: "{{ rh_pass }}"
