@@ -2,3 +2,4 @@ production: false
 volume: sdb
 region: emea
 asm: false
+ora_version: 11G

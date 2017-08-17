@@ -1,0 +1,4 @@
+oracle_bin_11G:
+ - http://oracle-install-media.s3.amazonaws.com/11G/11.2.0.4%20Database%20zips/p13390677_112040_Linux-x86-64_2of7.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051250&Signature=MvZXe7wC9oB2pcFzojCFeFtJ/mM%3D
+ - http://oracle-install-media.s3.amazonaws.com/11G/11.2.0.4%20Database%20zips/p13390677_112040_Linux-x86-64_1of7.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051327&Signature=mlSA6RQc28Mp8R7nm07LHhf%2BynU%3D
+ - http://oracle-install-media.s3.amazonaws.com/11G/11.2.0.4%20GRID%20zips/p13390677_112040_Linux-x86-64_3of7.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051347&Signature=EC6sWp9tP0INNgBQWgGRopn/zBk%3D

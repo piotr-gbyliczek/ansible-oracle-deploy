@@ -1,0 +1,9 @@
+
+oracle_bin_12C:
+ - http://oracle-install-media.s3.amazonaws.com/12C/12.1.0.1%20Database%20zips/V38500-01_2of2.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051418&Signature=OmUOzYhJGMCrcH/iJBjTugLkM3U%3D
+ - http://oracle-install-media.s3.amazonaws.com/12C/12.1.0.1%20Database%20zips/V38500-01_1of2.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051437&Signature=Z4ZNuRfuwcHZtfdPL67EmomMqmU%3D
+ - http://oracle-install-media.s3.amazonaws.com/12C/12.1.0.1%20GRID%20zips/V38501-01_2of2.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051462&Signature=gXO9THYXIWsJngQ64rbITQXGdRU%3D
+ - http://oracle-install-media.s3.amazonaws.com/12C/12.1.0.1%20GRID%20zips/V38501-01_1of2.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051480&Signature=M17ifidW%2BY/%2BJjCDzpQv1IgWEY8%3D
+ - http://oracle-install-media.s3.amazonaws.com/12C/12.1.0.2%20GRID%20zips/APR17%20Patch/p25434003_121020_Linux-x86-64.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051583&Signature=bI6q%2BCWJ32cjkVhSvVeRi0iDx9g%3D
+ - http://oracle-install-media.s3.amazonaws.com/12C/12.1.0.2%20GRID%20zips/V46096-01_2of2.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051605&Signature=JA3FWgItbLjEn4tcpNxOHQA/uAQ%3D
+ - http://oracle-install-media.s3.amazonaws.com/12C/12.1.0.2%20GRID%20zips/V46096-01_1of2.zip?AWSAccessKeyId=AKIAJLVYHUKQCWNLGGCQ&Expires=1503051622&Signature=zfztbdYyFzYpfQ/ipQEZnnFWZGU%3D

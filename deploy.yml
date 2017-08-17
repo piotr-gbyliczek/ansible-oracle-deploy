@@ -8,6 +8,7 @@
     volume: sdb
     region: emea
     asm: true
+    ora_version: 11G
   vars_files:
     - vars_files/packages
     - vars_files/cifs_packages_el6
@@ -18,6 +19,8 @@
     - vars_files/oracle_asm_names
     - vars_files/kernel_parameters
     - vars_files/oracle_limits
+    - vars_files/oracle_bin_11G
+    - vars_files/oracle_bin_12C
   tasks:
    - name: set kernel parameters
      sysctl:
@@ -259,6 +262,26 @@
 
    - debug: msg="{{ asm_drives }}"
      when: asm
+
+   - name: download oracle "{{ ora_version }}" archives
+     get_url:
+       url: "{{ item }}"
+       dest: /u01/media
+     with: "{{ oracle_bin_{{ ora_version }} }}"
+
+   - name: get oracle "{{ ora_version }}" filenames
+     find:
+       paths: /u01/media
+       file_type: file
+       contains: 'zip'
+     register: ora_files
+
+   - name: extract oracle "{{ ora_version }}" binaries from archives
+     unarchive:
+       remote_src: yes
+       src: "{{ item.path }}"
+       dest: /u01/media
+    with: "{{ ora_files }}"     
 
 
   handlers:
