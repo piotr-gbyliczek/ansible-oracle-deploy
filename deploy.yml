@@ -5,6 +5,9 @@
   become_user: root
   vars:
     production: true
+    volume: sdb
+    region: emea
+    asm: true
   vars_files:
     - vars_files/packages
     - vars_files/cifs_packages_el6
@@ -36,7 +39,7 @@
      yum:
        name: "{{ item }}"
        state: present
-     when: ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat'
+     when: ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat' and asm
      with_items: "{{ asm_packages_el6 }}"
 
 
@@ -44,18 +47,18 @@
      yum:
        name: "{{ item }}"
        state: present
-     when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'
+     when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat' and asm
      with_items: "{{ asm_packages_el7 }}"
 
 
    - name: initialize and verify oracleasm (el6)
      shell: oracleasm init
-     when: ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat'
+     when: ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat' and asm
      notify: restart_oracleasm_el7
 
    - name: initialize and verify oracleasm (el7)
      shell: oracleasm init
-     when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'
+     when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat' and asm
      notify: restart_oracleasm_el7
 
    - name: create oracle related groups
@@ -235,7 +238,7 @@
    - name: add oracleasm drives (el6)
      shell: oracleasm createdisk {{ item.1 }} /dev/{{item.0 }}1
      notify: restart_oracleasm_el6
-     when: production and ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat'
+     when: production and ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat' and asm
      with_together:
       - "{{ oracle_drives }}"
       - "{{ oracle_asm_names }}"
@@ -243,7 +246,7 @@
    - name: add oracleasm drives (el7)
      shell: oracleasm createdisk {{ item.1 }} /dev/{{item.0 }}1
      notify: restart_oracleasm_el7
-     when: production and ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'
+     when: production and ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat' and asm
      with_together:
       - "{{ oracle_drives }}"
       - "{{ oracle_asm_names }}"
@@ -252,8 +255,10 @@
    - name: check oracle drives
      shell: oracleasm listdisks
      register: asm_drives
+     when: asm
 
    - debug: msg="{{ asm_drives }}"
+     when: asm
 
 
   handlers:
