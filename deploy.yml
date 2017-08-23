@@ -3,12 +3,6 @@
   hosts: all
   become: true
   become_user: root
-  vars:
-    production: false
-    volume: sdb
-    region: emea
-    asm: false
-    ora_version: 12C
   vars_files:
     - vars_files/packages
     - vars_files/cifs_packages_el6
