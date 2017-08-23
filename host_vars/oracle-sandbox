@@ -3,3 +3,4 @@ volume: sdb
 region: emea
 asm: false
 ora_version: 12C
+extract:false

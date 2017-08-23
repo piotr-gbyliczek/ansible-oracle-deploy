@@ -318,6 +318,7 @@
        src: "{{ item.path }}"
        dest: /u01/media
      with_items: "{{ ora_files.files }}"
+     when: extract
 
    - name: disable zeroconf (el6)
      lineinfile:
