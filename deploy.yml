@@ -290,14 +290,14 @@
        url: "{{ item }}"
        dest: /u01/media
      with_items: "{{ oracle_bin_11G }}"
-     when: ora_version == '11G'
+     when: ora_version == '11G' and extract
 
    - name: download oracle 12G archives
      get_url:
        url: "{{ item }}"
        dest: /u01/media
      with_items: "{{ oracle_bin_12C }}"
-     when: ora_version == '12C'
+     when: ora_version == '12C' and extract
 
    - name: get oracle {{ ora_version }} filenames
      find:
@@ -305,6 +305,7 @@
        file_type: file
        contains: 'zip'
      register: ora_files
+     when: extract
 
    - name: extract oracle {{ ora_version }} binaries from archives
      unarchive:
