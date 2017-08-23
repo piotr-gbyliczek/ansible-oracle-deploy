@@ -322,7 +322,7 @@
    - name: disable zeroconf (el6)
      lineinfile:
        line: NOZEROCONF=true
-       path: /etc/systemctl/network-scripts/ifcfg-eth0
+       path: /etc/sysconfig/network-scripts/ifcfg-eth0
        state: present
      when: ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat'
      notify: restart_network_el6
@@ -330,7 +330,7 @@
    - name: disable zeroconf (el7)
      lineinfile:
        line: NOZEROCONF=true
-       path: /etc/systemctl/network-scripts/ifcfg-eth0
+       path: /etc/sysconfig/network-scripts/ifcfg-eth0
        state: present
      when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'
      notify: restart_network_el7
