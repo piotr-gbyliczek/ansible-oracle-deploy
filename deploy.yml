@@ -319,6 +319,21 @@
        dest: /u01/media
      with_items: "{{ ora_files.files }}"
 
+   - name: disable zeroconf (el6)
+     lineinfile:
+       line: NOZEROCONF=true
+       path: /etc/systemctl/network-scripts/ifcfg-eth0
+       state: present
+     when: ansible_distribution_major_version == '6' and ansible_os_family == 'RedHat'
+     notify: restart_network_el6
+
+   - name: disable zeroconf (el7)
+     lineinfile:
+       line: NOZEROCONF=true
+       path: /etc/systemctl/network-scripts/ifcfg-eth0
+       state: present
+     when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'
+     notify: restart_network_el7
 
   handlers:
    - name: restart_oracleasm_el6
@@ -326,7 +341,18 @@
        name: oracleasm
        state: restarted
 
+   - name: restart_network_el6
+     service:
+       name: network
+       state: restarted
+
    - name: restart_oracleasm_el7
      systemd:
        name: oracleasm.service
        state: restarted
+
+   - name: restart_network_el7
+     systemd:
+       name: network
+       state: restarted
+

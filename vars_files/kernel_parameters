@@ -10,3 +10,4 @@ kernel_parameters:
       - { name: net.core.wmem_max, value:  1048576 }
       - { name: fs.aio-max-nr, value:  1048576 }
       - { name: net.ipv4.ip_local_port_range, value:  9000 65500 }
+      - { name: panic_on_oops, value: 1 }
