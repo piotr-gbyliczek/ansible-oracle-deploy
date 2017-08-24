@@ -1,5 +1,5 @@
 ---
-packages: 
+packages:
  - unzip
  - binutils
  - compat-libstdc++-33
@@ -43,6 +43,6 @@ packages:
  - compat-libcap1
  - bind-utils
  - wget
- - xhost
- - xauth
  - java-1.7.0-openjdk-devel
+ - xorg-x11-xauth
+ - xorg-x11-server-utils
