@@ -343,7 +343,7 @@
    - name: install grid
      become: yes
      become_user: oracle
-     shell: .runInstaller -responseFile /home/oracle/12c_12_1_0_2grid.rsp
+     shell: ./runInstaller -responseFile /home/oracle/12c_12_1_0_2grid.rsp
      args:
        chdir: /u01/media/grid
 
@@ -357,7 +357,7 @@
    - name: install database
      become: yes
      become_user: oracle
-     shell: .runInstaller -responseFile /home/oracle/12c_12_1_0_1_db.rsp
+     shell: ./runInstaller -responseFile /home/oracle/12c_12_1_0_1_db.rsp
      args:
        chdir: /u01/media/database
 
