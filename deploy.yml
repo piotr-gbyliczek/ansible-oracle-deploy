@@ -185,8 +185,8 @@
        mode: 0775
      with_items:
        - /u01/media
-       - /u01/app/oracle/product/12.1.0.2/dbhome_1
-       - /u01/app/oracle/12.1.0.2/grid
+       - /u01/app/oracle/product/12.1.0/dbhome_1
+       - /u01/12.1.0.2/grid
      tags: lvm, mount
 
    - name: enable rhui repositories
@@ -238,7 +238,7 @@
    - name: add oracle binary path to PATH
      lineinfile:
        path: ~/.bash_profile
-       line: PATH=$PATH:$HOME/bin:/u01/app/oracle/12.1.0.2/grid/bin
+       line: PATH=$PATH:$HOME/bin:/u01/12.1.0.2/grid/bin
 
    - name: set environment variables for oracle user
      become: yes
@@ -331,6 +331,42 @@
      when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'
      notify: restart_network_el7
 
+   - name: place response files
+     template:
+       src: "{{ item }}.j2"
+       dest: "/home/oracle/{{ item }}"
+       backup: yes
+     with_items:
+       - 12c_12_1_0_2grid.rsp
+       - 12c_12_1_0_1_db.rsp
+
+   - name: install grid
+     become: yes
+     become_user: oracle
+     shell: .runInstaller -responseFile /home/oracle/12c_12_1_0_2grid.rsp
+     args:
+       chdir: /u01/media/grid
+
+   - name: run grid post-install scripts
+     shell: "{{ item }}"
+     with_items:
+      - /u01/app/oraInventory/orainstRoot.sh
+      - /u01/12.1.0.2/grid/root.sh
+      - /u01/12.1.0.2/grid/perl/bin/perl -I/u01/12.1.0.2/grid/perl/lib -I/u01/12.1.0.2/grid/crs/install /u01/12.1.0.2/grid/crs/install/roothas.pl
+
+   - name: install database
+     become: yes
+     become_user: oracle
+     shell: .runInstaller -responseFile /home/oracle/12c_12_1_0_1_db.rsp
+     args:
+       chdir: /u01/media/database
+
+   - name: run database post-install scripts
+     shell: "{{ item }}"
+     with_items:
+      - /u01/app/oracle/product/12.1.0.2/dbhome_1/root.sh
+
+
   handlers:
    - name: restart_oracleasm_el6
      service:
@@ -351,4 +387,3 @@
      systemd:
        name: network
        state: restarted
-

@@ -3,8 +3,8 @@ export TMP=/tmp
 export TMPDIR=$TMP
 
 export ORACLE_BASE=/u01/app/oracle
-export ORACLE_HOME=$ORACLE_BASE/product/12.1.0.2/dbhome_1
-export ORACLE_GRID=/u01/app/oracle/12.1.0.2/grid
+export ORACLE_HOME=$ORACLE_BASE/product/12.1.0/dbhome_1
+export ORACLE_GRID=/u01/12.1.0.2/grid
 
 export PATH=/usr/sbin:$PATH
 export PATH=$ORACLE_HOME/bin:$ORACLE_GRID/bin:$PATH
